@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+''' Post training '''
 
 from ultralytics import YOLO
 import cv2
