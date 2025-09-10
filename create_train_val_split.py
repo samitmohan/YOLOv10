@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
-"""
-Creates train and validation splits from merged dataset for YOLO training.
-Current images: ~30k
-70% training, 15% validation, and 15% testing, which would allocate 
-Output: real_dataset/train/images, real_dataset/train/labels, real_dataset/val/images, real_dataset/val/labels, real_dataset/test/images, real_dataset/test/labels
-"""
-
 import os
 import shutil
 import random
 
-
 def create_train_val_test_split(merged_data_dir, output_dir, train_ratio=0.70, val_ratio=0.15, seed=42):
+    """
+    Creates train and validation splits from merged dataset for YOLO training.
+    Current images: ~30k
+    70% training, 15% validation, and 15% testing
+    Output: real_dataset/train/images, real_dataset/train/labels, real_dataset/val/images, real_dataset/val/labels, real_dataset/test/images, real_dataset/test/labels
+    """
     
     random.seed(seed)
     
-    # Input directories
     merged_images_dir = os.path.join(merged_data_dir, 'images')
     merged_labels_dir = os.path.join(merged_data_dir, 'labels')
 
@@ -113,6 +110,7 @@ def create_train_val_test_split(merged_data_dir, output_dir, train_ratio=0.70, v
         dst_label = os.path.join(test_labels_dir, label_file)
         shutil.copy2(src_label, dst_label)
     
+    # output structure
     print(f"  {output_dir}/")
     print("    train/")
     print(f"      images/ ({len(train_files)} files)")

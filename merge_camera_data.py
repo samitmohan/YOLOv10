@@ -1,6 +1,4 @@
 # Converts data/images and data/jsons into YOLO format (single merged_data with clean json Annotations)
-# Optimized for FLATTENED structure: data/images/ and data/json/
-# Total JSONS and Images: 27k. Split 20k training, 3.5k test, 3.5k val
 from pathlib import Path
 from collections import Counter
 import os
@@ -8,7 +6,7 @@ import shutil
 import json
 import yaml
 
-# None = drop this label entirely
+# None = drop
 CANONICAL = {
     "carm": None,
     "cc": None,
@@ -188,7 +186,7 @@ def merge_flattened_data(images_dir, json_dir, output_dir, classes, keep_negativ
     out_img.mkdir(parents=True, exist_ok=True)
     out_lbl.mkdir(parents=True, exist_ok=True)
 
-    # Get all image files (only direct children, no recursion needed)
+    # Get all image files 
     exts = {".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG"}
     image_files = [f for f in images_dir.iterdir() if f.is_file() and f.suffix in exts]
     print(f"[scan] Found {len(image_files):,} images in {images_dir}")
@@ -252,63 +250,41 @@ def merge_flattened_data(images_dir, json_dir, output_dir, classes, keep_negativ
     print("MERGE SUMMARY")
     print("="*60)
     
-    print(f"📊 Processing Results:")
-    print(f"   Images found:           {len(image_files):,}")
-    print(f"   ✅ Successfully copied:  {image_count:,}")
-    print(f"   📝 With annotations:     {annotation_count:,}")
-    print(f"   ⏭️  No JSON found:       {skipped_no_json:,}")
-    print(f"   ⏭️  No valid boxes:      {skipped_no_boxes:,}")
+    print(f"Images found: {len(image_files):,}")
+    print(f"Successfully copied: {image_count:,}")
+    print(f"With annotations: {annotation_count:,}")
+    print(f"No JSON found: {skipped_no_json:,}")
+    print(f"No valid boxes: {skipped_no_boxes:,}")
     
     # Success rates
     json_match_rate = ((len(image_files) - skipped_no_json) / len(image_files) * 100) if len(image_files) > 0 else 0
     annotation_rate = (annotation_count / len(image_files) * 100) if len(image_files) > 0 else 0
     
-    print(f"\n📈 Success Rates:")
-    print(f"   JSON match rate:        {json_match_rate:.1f}%")
-    print(f"   Valid annotation rate:  {annotation_rate:.1f}%")
+    print(f"JSON match rate:        {json_match_rate:.1f}%")
+    print(f"Valid annotation rate:  {annotation_rate:.1f}%")
     
     # Class distribution
     if total_annotations:
-        print(f"\n📊 Class Distribution ({total_annotations:,} total annotations):")
+        print(f"\nClass Distribution ({total_annotations:,} total annotations):")
         for cname in classes:
             cnt = class_counts.get(cname, 0)
             pct = 100.0 * cnt / total_annotations if total_annotations else 0.0
             print(f"   {cname:>8}: {cnt:>7,} ({pct:5.1f}%)")
     
-    print(f"\n📁 Output Directories:")
-    print(f"   Images: {out_img}")
-    print(f"   Labels: {out_lbl}")
-    print("="*60)
+    # final labels
+    print(f"Images: {out_img}")
+    print(f"Labels: {out_lbl}")
 
 def main():
-    # Use absolute paths
     base_path = "/home/samit/samit_workspace/training/odn"
     images_dir = f"{base_path}/data/images"
     json_dir = f"{base_path}/data/json"
     output_dir = f"{base_path}/merged_data"
     yaml_path = f"{base_path}/data.yaml"
 
-    print(f"Images directory: {images_dir}")
-    print(f"JSON directory: {json_dir}")
-    print(f"Output directory: {output_dir}")
-    print(f"YAML config: {yaml_path}")
-
-    # Verify paths exist
-    for path, name in [(images_dir, "Images"), (json_dir, "JSON"), (yaml_path, "YAML")]:
-        if not os.path.exists(path):
-            print(f"❌ ERROR: {name} path not found: {path}")
-            return
-
-    try:
-        # Load classes from data.yaml
-        class_list = get_classes_from_yaml(yaml_path)
-        
-        # Process flattened data
-        merge_flattened_data(images_dir, json_dir, output_dir, class_list)
-        
-    except Exception as e:
-        print(f"❌ Error during processing: {e}")
-        raise
+    class_list = get_classes_from_yaml(yaml_path)
+    # Process flattened data
+    merge_flattened_data(images_dir, json_dir, output_dir, class_list)
 
 if __name__ == "__main__":
     main()

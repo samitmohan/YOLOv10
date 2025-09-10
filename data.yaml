@@ -1,15 +1,14 @@
-path: /home/cv-laptop-1/Desktop/samit/triton/objectdetection/dataset
+path: /home/cv-laptop-1/Desktop/samit/triton/objectdetection/real_dataset
 
 train: train/images
 val: val/images
 test: test/images
-nc: 8
+nc: 7
 names:
 - car
 - truck
 - man
 - bike
 - bus
-- jcb
 - bicycle
 - auto
